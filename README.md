@@ -1,26 +1,20 @@
-# OpenWeather CLI
+# Weather Project (OpenWeather CLI + VK Weather Bot)
 
-Консольное приложение на Python для работы с [OpenWeatherMap API](https://openweathermap.org/api): текущая погода, прогноз на 5 дней и качество воздуха — по названию города или по координатам.
+Учебный проект на Python вокруг [OpenWeatherMap API](https://openweathermap.org/api).
+Содержит два независимых подпроекта, использующих общий backend-подход и один `.env`:
 
-## Возможности
-
-- Текущая погода по городу (геокодирование + Current Weather API) или по координатам
-- Прогноз на 5 дней (Forecast API) с минимальной/максимальной температурой по дням
-- Качество воздуха (Air Pollution API) с интерпретацией на русском и перечнем превышенных загрязнителей
-- Повторы запросов при 429 и временных сетевых ошибках (паузы 1 с, 2 с, 4 с)
-- Обработка HTTP-ошибок и таймаутов
+- **`wearther_cli/`** — консольное приложение (текущая погода, прогноз, качество воздуха);
+- **`weather_vk_bot/`** — бот сообщества ВКонтакте на [VKBottle](https://vkbottle.readthedocs.io/) (Long Poll) поверх OpenWeatherMap.
 
 ## Требования
 
-- Python 3.10+
-- API-ключ OpenWeatherMap (бесплатный тариф)
+- Python 3.11+
+- Ключ OpenWeatherMap (бесплатный тариф)
+- Токен сообщества ВКонтакте — только для VK-бота
 
 ## Установка
 
 ```bash
-git clone https://github.com/Georgy-collab/vk_wearther_bot.git
-cd vk_wearther_bot
-
 python -m venv venv
 venv\Scripts\activate          # Windows
 # source venv/bin/activate     # Linux / macOS
@@ -28,21 +22,41 @@ venv\Scripts\activate          # Windows
 pip install -r requirements.txt
 ```
 
-Создайте файл `.env` по образцу `env.example.txt`:
+Создайте `.env` по образцу `env.example.txt` (один файл в корне на оба подпроекта):
 
 ```env
-API_KEY=ваш_ключ_openweathermap
+OPENWEATHER_API_KEY=ваш_ключ_openweathermap
+VK_BOT_TOKEN=токен_сообщества_вк
 ```
 
-Ключ: [home.openweathermap.org/api_keys](https://home.openweathermap.org/api_keys)
+Ключ OpenWeatherMap: [home.openweathermap.org/api_keys](https://home.openweathermap.org/api_keys)
 
-## Запуск
+## Зависимости
+
+- `requests` — HTTP-запросы к OpenWeatherMap
+- `python-dotenv` — загрузка переменных из `.env`
+- `vkbottle` — фреймворк VK API (нужен только для VK-бота)
+
+---
+
+## 1. OpenWeather CLI (`wearther_cli/`)
+
+Консольное приложение: текущая погода, прогноз на 5 дней и качество воздуха —
+по названию города или по координатам.
+
+**Возможности:**
+
+- Текущая погода по городу (геокодирование + Current Weather API) или по координатам
+- Прогноз на 5 дней с минимальной/максимальной температурой по дням
+- Качество воздуха с интерпретацией на русском и перечнем превышенных загрязнителей
+- Повторы запросов при 429 и временных сетевых ошибках (паузы 1 с, 2 с, 4 с)
+- Обработка HTTP-ошибок и таймаутов
+
+**Запуск:**
 
 ```bash
 python wearther_cli/weather_app.py
 ```
-
-Меню:
 
 | Пункт | Действие |
 |-------|----------|
@@ -51,11 +65,9 @@ python wearther_cli/weather_app.py
 | `3` | Качество воздуха |
 | `0` | Выход |
 
-Для пунктов `1`–`3` приложение затем спросит способ указания места: по городу или по координатам.
+Для пунктов `1`–`3` приложение спросит способ указания места: по городу или по координатам.
 
-## Качество воздуха
-
-Общий индекс приходит из Air Pollution API (шкала 1–5). Дополнительно концентрация каждого загрязнителя (SO2, NO2, PM10, PM2.5, O3, CO) сопоставляется с таблицей уровней, и выводятся те, что превышают уровень «Хорошее», с указанием категории:
+**Качество воздуха** (шкала Air Pollution API 1–5):
 
 | Индекс | Уровень |
 |--------|---------|
@@ -65,26 +77,65 @@ python wearther_cli/weather_app.py
 | 4 | Плохое |
 | 5 | Очень плохое |
 
-## Структура проекта
+Концентрация каждого загрязнителя (SO2, NO2, PM10, PM2.5, O3, CO) сопоставляется
+с таблицей уровней; выводятся те, что превышают уровень «Хорошее».
+
+**Структура:**
 
 ```
-├── wearther_cli/          # Весь код приложения
-│   ├── weather_app.py     # CLI: меню и запуск (точка входа)
-│   ├── weather_service.py # Запросы к OpenWeatherMap (погода, прогноз, воздух)
-│   ├── air_quality.py     # Таблица уровней и интерпретация качества воздуха
-│   ├── display.py         # Форматирование и вывод результатов в консоль
-│   ├── http_client.py     # GET/POST, обработка ошибок, retry
-│   └── config.py          # Загрузка API_KEY из .env
-├── env.example.txt        # Шаблон переменных окружения
-└── requirements.txt
+wearther_cli/
+├── weather_app.py     # CLI: меню и запуск (точка входа)
+├── weather_service.py # Запросы к OpenWeatherMap
+├── air_quality.py     # Таблица уровней и интерпретация качества воздуха
+├── display.py         # Форматирование и вывод в консоль
+├── http_client.py     # GET/POST, обработка ошибок, retry
+└── config.py          # Загрузка OPENWEATHER_API_KEY из .env
 ```
 
-Слои разделены по ответственности: `weather_service` только получает данные (возвращает словарь или `None`), `display` отвечает за вывод, а `weather_app` связывает их и печатает сообщения об ошибках.
+---
 
-## Зависимости
+## 2. VK Weather Bot (`weather_vk_bot/`)
 
-- `requests` — HTTP-запросы
-- `python-dotenv` — загрузка `API_KEY` из `.env`
+Погодный бот для сообщества ВКонтакте на VKBottle (Long Poll API). Frontend-слой
+поверх backend-модуля `OpenWeatherAPI.py`.
+
+**Возможности:**
+
+- 🌤 Текущая погода по названию города
+- 📅 Прогноз на 5 дней
+- 📍 Геолокация: нативная кнопка VK (`message.geo`) + fallback на координаты текстом
+- 🌫 Расширенный режим: погода + рассвет/закат + качество воздуха (AQI) с анализом
+- Кнопочный UX, цветные кнопки, навигация «Назад» / «Главное меню»
+- FSM на `StateDispenser`, логирование, обработка ошибок
+
+**Запуск:**
+
+```bash
+cd weather_vk_bot
+python main.py
+```
+
+> В настройках сообщества VK включите Long Poll API (последняя версия) и события
+> «Входящие сообщения». Боту нужны права на сообщения.
+
+**Структура:**
+
+```
+weather_vk_bot/
+├── main.py                     # Точка входа: env, логирование, запуск
+├── bot.py                      # VKWeatherBot: сборка, middleware, роуты
+├── OpenWeatherAPI.py           # Backend: клиент OpenWeatherMap (requests)
+├── handlers/  menu · weather · forecast · geo · help
+├── services/  weather_service · formatter · state_manager
+└── keyboards/ main_keyboard · navigation_keyboard
+```
+
+Обработчики регистрируются в две фазы (входные точки → состояния) плюс catch-all,
+поэтому навигация всегда приоритетнее ввода города. Синхронный `requests` в backend
+оборачивается в `asyncio.to_thread`, чтобы не блокировать событийный цикл.
+
+**Масштабируемость:** архитектура готова к добавлению уведомлений, ежедневных
+прогнозов, избранных городов, предупреждений о качестве воздуха и мультиязычности.
 
 ## Лицензия
 

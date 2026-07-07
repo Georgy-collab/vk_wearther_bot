@@ -4,7 +4,7 @@
 Вывод сообщений об ошибках остаётся на стороне вызывающего кода (CLI).
 """
 
-from config import API_KEY
+from config import OPENWEATHER_API_KEY
 from http_client import get_request
 
 
@@ -14,7 +14,7 @@ def get_coordinates(city: str) -> tuple[float, float] | None:
     Возвращает кортеж (широта, долгота) или (None, None), если город
     не найден или запрос не удался.
     """
-    url = f"http://api.openweathermap.org/geo/1.0/direct?q={city}&appid={API_KEY}&limit=1&lang=ru"
+    url = f"http://api.openweathermap.org/geo/1.0/direct?q={city}&appid={OPENWEATHER_API_KEY}&limit=1&lang=ru"
     response = get_request(url)
     if response is None:
         return None, None
@@ -60,7 +60,7 @@ def get_weather_by_coordinates(latitude: float, longitude: float) -> dict | None
 
     Возвращает словарь ответа API или None при ошибке запроса.
     """
-    url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={API_KEY}&units=metric&lang=ru"
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={OPENWEATHER_API_KEY}&units=metric&lang=ru"
     response = get_request(url)
     if response is None:
         return None
@@ -85,7 +85,7 @@ def get_forecast_by_coordinates(latitude: float, longitude: float) -> dict | Non
 
     Возвращает словарь ответа API или None при ошибке запроса.
     """
-    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={latitude}&lon={longitude}&appid={API_KEY}&units=metric&lang=ru"
+    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={latitude}&lon={longitude}&appid={OPENWEATHER_API_KEY}&units=metric&lang=ru"
     response = get_request(url)
     if response is None:
         return None
@@ -110,7 +110,7 @@ def get_air_pollution_by_coordinates(latitude: float, longitude: float) -> dict 
 
     Возвращает словарь ответа API или None при ошибке запроса.
     """
-    url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={latitude}&lon={longitude}&appid={API_KEY}"
+    url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={latitude}&lon={longitude}&appid={OPENWEATHER_API_KEY}"
     response = get_request(url)
     if response is None:
         return None
