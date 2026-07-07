@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 import os
 from http_client import get_request
-from storage import read_from_file, save_to_file
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -35,7 +34,6 @@ def get_weather_by_coordinates(latitude: float, longitude: float) -> dict | None
     if response is None:
         return None
     data = response.json()
-    save_to_file(data)
     return data
 
 if __name__ == "__main__":
@@ -52,11 +50,7 @@ if __name__ == "__main__":
             if weather:
                 print(f"Погода в {city}: {weather['main']['temp']}°C, {weather['weather'][0]['description']}")
             else:
-                cached_data = read_from_file()
-                if cached_data and cached_data["name"].lower() == city.lower():
-                    print(f"Погода (из кэша) в {city}: {cached_data['main']['temp']}°C, {cached_data['weather'][0]['description']}")
-                else:
-                    print("Не удалось получить погоду")
+                print("Не удалось получить погоду")
         elif choice == "2":
             try:
                 lat = float(input("Введите широту: ").strip())
@@ -65,11 +59,7 @@ if __name__ == "__main__":
                 if weather:
                     print(f"Погода на координатах {lat}, {lon}: {weather['main']['temp']}°C, {weather['weather'][0]['description']}")
                 else:
-                    cached_data = read_from_file()
-                    if cached_data and cached_data["coord"]["lat"] == lat and cached_data["coord"]["lon"] == lon:
-                        print(f"Погода (из кэша) на координатах {lat}, {lon}: {cached_data['main']['temp']}°C, {cached_data['weather'][0]['description']}")
-                    else:
-                        print("Не удалось получить погоду")
+                    print("Не удалось получить погоду")
             except ValueError:
                 print("Некорректный ввод координат.")
         elif choice == "0":
