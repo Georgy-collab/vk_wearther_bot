@@ -1,0 +1,18 @@
+# Секреты и окружение
+.env
+
+# Виртуальное окружение Python
+venv/
+.venv/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Локальные данные / БД
+*.db
+
+# IDE
+.vscode/
+.idea/
