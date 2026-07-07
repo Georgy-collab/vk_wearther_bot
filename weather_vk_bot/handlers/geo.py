@@ -16,6 +16,7 @@ from vkbottle.bot import Message
 from keyboards.main_keyboard import CMD_GEO, main_menu
 from keyboards.navigation_keyboard import geo_request
 from services.formatter import format_current
+from services.parsing import parse_coordinates
 from services.state_manager import WeatherStates
 
 logger = logging.getLogger(__name__)
@@ -31,26 +32,6 @@ BAD_COORDS = (
     "Отправьте геолокацию кнопкой или пришлите их в формате:\n"
     "55.7558, 37.6173"
 )
-
-
-def parse_coordinates(text: str) -> tuple[float, float] | None:
-    """Разбирает координаты из строки. Поддержка запятой и пробела как разделителя.
-
-    Возвращает (lat, lon) при корректных значениях в допустимых диапазонах,
-    иначе None.
-    """
-    if not text:
-        return None
-    parts = [p for p in text.replace(",", " ").split() if p]
-    if len(parts) != 2:
-        return None
-    try:
-        lat, lon = float(parts[0]), float(parts[1])
-    except ValueError:
-        return None
-    if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
-        return None
-    return lat, lon
 
 
 def register(bot, ctx) -> None:

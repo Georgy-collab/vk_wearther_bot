@@ -10,20 +10,25 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 
 from vkbottle import BaseMiddleware
 from vkbottle.bot import Bot, Message
 
-from handlers import forecast, geo, help as help_handler, menu, weather
+from handlers import (compare, favorite, forecast, geo,
+                      help as help_handler, menu, weather)
 from OpenWeatherAPI import OpenWeatherAPI
 from services.state_manager import StateManager
+from services.storage import CityStorage
 from services.weather_service import WeatherService
 
 logger = logging.getLogger(__name__)
 
+CITIES_FILE = Path(__file__).resolve().parent / "user_cities.json"
+
 # Обработчики с двухфазной регистрацией: сначала входные точки (кнопки/команды),
 # затем состояния — чтобы навигация всегда имела приоритет над вводом города.
-_HANDLERS = (menu, help_handler, weather, forecast, geo)
+_HANDLERS = (menu, help_handler, weather, forecast, geo, favorite, compare)
 
 
 @dataclass
@@ -32,6 +37,7 @@ class BotContext:
 
     service: WeatherService
     states: StateManager
+    cities: CityStorage
 
 
 class LoggingMiddleware(BaseMiddleware[Message]):
@@ -50,6 +56,7 @@ class VKWeatherBot:
         self.context = BotContext(
             service=WeatherService(OpenWeatherAPI(openweather_key)),
             states=StateManager(self.bot.state_dispenser),
+            cities=CityStorage(CITIES_FILE),
         )
         self._setup_middlewares()
         self._register_handlers()

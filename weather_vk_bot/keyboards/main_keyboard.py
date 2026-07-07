@@ -13,6 +13,8 @@ CMD_WEATHER = "weather"
 CMD_FORECAST = "forecast"
 CMD_GEO = "geo"
 CMD_EXTENDED = "extended"
+CMD_MY_CITY = "my_city"
+CMD_COMPARE = "compare"
 CMD_HELP = "help"
 
 
@@ -24,6 +26,11 @@ def main_menu() -> str:
              color=KeyboardButtonColor.PRIMARY)
         .add(Text("📅 Прогноз 5 дней", payload={"cmd": CMD_FORECAST}),
              color=KeyboardButtonColor.PRIMARY)
+        .row()
+        .add(Text("⭐ Мой город", payload={"cmd": CMD_MY_CITY}),
+             color=KeyboardButtonColor.POSITIVE)
+        .add(Text("⚖️ Сравнить города", payload={"cmd": CMD_COMPARE}),
+             color=KeyboardButtonColor.POSITIVE)
         .row()
         .add(Text("📍 Геолокация", payload={"cmd": CMD_GEO}),
              color=KeyboardButtonColor.SECONDARY)

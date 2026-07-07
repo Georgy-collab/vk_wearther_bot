@@ -18,6 +18,8 @@ class WeatherStates(BaseStateGroup):
     WAITING_FORECAST_CITY = "waiting_forecast_city"
     WAITING_GEO = "waiting_geo"
     WAITING_EXTENDED = "waiting_extended"
+    WAITING_SAVE_CITY = "waiting_save_city"
+    WAITING_COMPARE = "waiting_compare"
 
 
 class StateManager:

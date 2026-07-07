@@ -101,6 +101,47 @@ def format_forecast(data: dict) -> str:
     return "\n".join(lines)
 
 
+def _short_card(data: dict) -> tuple[str, float, int, float]:
+    """Короткая сводка для сравнения: (строка, темп, влажность, ветер)."""
+    main = data.get("main", {})
+    weather = (data.get("weather") or [{}])[0]
+    wind = data.get("wind", {})
+    city = data.get("name") or "—"
+    temp = main.get("temp", 0)
+    humidity = main.get("humidity", 0)
+    speed = wind.get("speed", 0)
+    desc = (weather.get("description") or "").capitalize()
+    line = f"🏙 {city}: {_temp(temp)}, {desc}"
+    return line, temp, humidity, speed
+
+
+def format_compare(data_a: dict, data_b: dict) -> str:
+    """Сравнение текущей погоды двух городов."""
+    line_a, temp_a, hum_a, wind_a = _short_card(data_a)
+    line_b, temp_b, hum_b, wind_b = _short_card(data_b)
+    name_a = data_a.get("name") or "город A"
+    name_b = data_b.get("name") or "город B"
+
+    diff = round(temp_a - temp_b)
+    if diff > 0:
+        verdict = f"🌡 Теплее в {name_a} на {abs(diff)}°C"
+    elif diff < 0:
+        verdict = f"🌡 Теплее в {name_b} на {abs(diff)}°C"
+    else:
+        verdict = "🌡 Температура одинаковая"
+
+    return "\n".join([
+        "⚖️ Сравнение городов",
+        DIVIDER,
+        line_a,
+        line_b,
+        DIVIDER,
+        verdict,
+        f"💧 Влажность: {hum_a}% / {hum_b}%",
+        f"💨 Ветер: {round(wind_a)} / {round(wind_b)} м/с",
+    ])
+
+
 def _air_index(components: dict) -> tuple[str, list[str]]:
     """Возвращает (строка-AQI-подсказка, список превышенных загрязнителей)."""
     exceeded = []

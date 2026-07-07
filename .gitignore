@@ -12,6 +12,10 @@ __pycache__/
 
 # Локальные данные / БД
 *.db
+weather_vk_bot/user_cities.json
+
+# Runtime-кэш vkbottle
+.vkbottle/
 
 # IDE
 .vscode/

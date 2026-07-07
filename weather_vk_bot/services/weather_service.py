@@ -36,6 +36,15 @@ class WeatherService:
     async def current_by_coordinates(self, lat: float, lon: float) -> dict | None:
         return await asyncio.to_thread(self._api.get_weather_by_coordinates, lat, lon)
 
+    async def compare_cities(
+        self, city_a: str, city_b: str
+    ) -> tuple[dict | None, dict | None]:
+        """Текущая погода двух городов (параллельно)."""
+        return await asyncio.gather(
+            self.current_by_city(city_a),
+            self.current_by_city(city_b),
+        )
+
     async def forecast_by_city(self, city: str) -> dict | None:
         return await asyncio.to_thread(self._api.get_forecast_by_city, city)
 
