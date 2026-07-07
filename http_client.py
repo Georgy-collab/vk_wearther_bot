@@ -7,6 +7,11 @@ MAX_RETRIES = len(RETRY_DELAYS)
 
 
 def handle_response(response: requests.Response) -> tuple[bool, str]:
+    """Проверяет HTTP-ответ и возвращает кортеж (успех, сообщение).
+
+    Для успешного ответа возвращает (True, "Успешно"), иначе — (False, текст
+    ошибки) с расшифровкой распространённых кодов состояния.
+    """
     if response.ok:
         return True, "Успешно"
 
@@ -27,10 +32,16 @@ def handle_response(response: requests.Response) -> tuple[bool, str]:
 
 
 def _should_retry_response(response: requests.Response) -> bool:
+    """Определяет, нужно ли повторить запрос по коду ответа (429 — слишком
+    много запросов).
+    """
     return response.status_code == 429
 
 
 def _should_retry_exception(error: requests.RequestException) -> bool:
+    """Определяет, нужно ли повторить запрос при сетевой ошибке
+    (обрыв соединения, таймаут, ошибка чанкованной передачи).
+    """
     return isinstance(
         error,
         (requests.ConnectionError, requests.Timeout, requests.ChunkedEncodingError),
@@ -41,6 +52,11 @@ def _request_with_retries(
     make_request,
     method_label: str,
 ) -> requests.Response | None:
+    """Выполняет запрос с повторными попытками при ошибках 429 и временных
+    сетевых сбоях, делая паузы из RETRY_DELAYS между попытками.
+
+    Возвращает успешный ответ или None, если все попытки исчерпаны.
+    """
     retry_reason = ""
 
     for attempt in range(MAX_RETRIES + 1):
@@ -76,6 +92,10 @@ def _request_with_retries(
 
 
 def get_request(url: str, params=None, timeout=10) -> requests.Response | None:
+    """Выполняет GET-запрос с повторными попытками и обработкой ошибок.
+
+    Возвращает успешный ответ requests.Response или None при ошибке.
+    """
     if not url:
         print("URL не должен быть пустым.")
         return None
@@ -93,6 +113,10 @@ def post_request(
     headers: dict | None = None,
     timeout: int = 15,
 ) -> requests.Response | None:
+    """Выполняет POST-запрос с повторными попытками и обработкой ошибок.
+
+    Возвращает успешный ответ requests.Response или None при ошибке.
+    """
     if not url:
         print("URL не должен быть пустым.")
         return None
