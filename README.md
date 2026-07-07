@@ -18,8 +18,8 @@
 ## Установка
 
 ```bash
-git clone https://github.com/<ваш-логин>/<имя-репозитория>.git
-cd <имя-репозитория>
+git clone https://github.com/Georgy-collab/vk_wearther_bot.git
+cd vk_wearther_bot
 
 python -m venv venv
 venv\Scripts\activate          # Windows
@@ -39,7 +39,7 @@ API_KEY=ваш_ключ_openweathermap
 ## Запуск
 
 ```bash
-python weather_app.py
+python wearther_cli/weather_app.py
 ```
 
 Меню:
@@ -55,7 +55,7 @@ python weather_app.py
 
 ## Качество воздуха
 
-Общий индекс приходит из Air Pollution API (шкала 1–5). Дополнительно концентрация каждого загрязнителя (SO₂, NO₂, PM10, PM2.5, O₃, CO) сопоставляется с таблицей уровней, и выводятся те, что превышают уровень «Хорошее», с указанием категории:
+Общий индекс приходит из Air Pollution API (шкала 1–5). Дополнительно концентрация каждого загрязнителя (SO2, NO2, PM10, PM2.5, O3, CO) сопоставляется с таблицей уровней, и выводятся те, что превышают уровень «Хорошее», с указанием категории:
 
 | Индекс | Уровень |
 |--------|---------|
@@ -68,17 +68,23 @@ python weather_app.py
 ## Структура проекта
 
 ```
-├── weather_app.py    # CLI и запросы к OpenWeatherMap
-├── http_client.py    # GET/POST, обработка ошибок, retry
-├── env.example.txt   # Шаблон переменных окружения
+├── wearther_cli/          # Весь код приложения
+│   ├── weather_app.py     # CLI: меню и запуск (точка входа)
+│   ├── weather_service.py # Запросы к OpenWeatherMap (погода, прогноз, воздух)
+│   ├── air_quality.py     # Таблица уровней и интерпретация качества воздуха
+│   ├── display.py         # Форматирование и вывод результатов в консоль
+│   ├── http_client.py     # GET/POST, обработка ошибок, retry
+│   └── config.py          # Загрузка API_KEY из .env
+├── env.example.txt        # Шаблон переменных окружения
 └── requirements.txt
 ```
+
+Слои разделены по ответственности: `weather_service` только получает данные (возвращает словарь или `None`), `display` отвечает за вывод, а `weather_app` связывает их и печатает сообщения об ошибках.
 
 ## Зависимости
 
 - `requests` — HTTP-запросы
 - `python-dotenv` — загрузка `API_KEY` из `.env`
-- `colorama` — цветной вывод в терминале (при необходимости)
 
 ## Лицензия
 
